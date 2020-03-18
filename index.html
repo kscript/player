@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        html,body{
+            height: 100%;
+        }
+        .main{
+            font-size: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        input{
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            opacity: .01;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+        }
+        video{
+            min-width: 100%;
+            min-height: 100%;
+            transform-origin: 50% 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+    <input type="file" name="" id="">
+    <video autoplay="" name="media">
+    </video>
+    <script src="./jquery-1.7.2.min.js"></script>
+    <script>
+        var $video = $("video");
+        var video = $video[0];
+        var app = {
+            mode: 'play',
+            mouse: {}
+        }
+        $("input").on("change", function(){
+            $video.html('<source src="' + URL.createObjectURL(this.files[0]) + '"></source>');
+            $(this).hide();
+        });
+        $("video").on("mousedown", function(event){
+            app.mode = 'move';
+            app.mouse.down = event;
+            app.mouse.move = event;
+        });
+        $("video").on("mouseup", function(event){
+            if (app.mode === 'move') {
+                app.mode = 'play';
+                app.mouse.up = event;
+            }
+        });
+        $("video").on("mousemove", function(event){
+            if (app.mode === 'move') {
+                var scale = $video.data('scale') || 100;
+                var translateX = $video.data('translateX') || 0;
+                var translateY = $video.data('translateY') || 0;
+                translateX += event.clientX - app.mouse.move.clientX;
+                translateY += event.clientY - app.mouse.move.clientY;
+                app.mouse.move = event;
+                $video.data({
+                    scale: scale,
+                    translateX: translateX,
+                    translateY: translateY
+                }).css({
+                    transform: 'scale(' + (scale / 100) + ') translate(' + translateX + 'px, ' + translateY + 'px)'
+                })
+            }
+        });
+        $(document).on("keydown", function(event){
+            if (/^[rtyfgh]$/.test(event.key)) {
+                var scale = $video.data('scale') || 100;
+                var translateX = $video.data('translateX') || 0;
+                var translateY = $video.data('translateY') || 0;
+                translateX += ({
+                    f: -1,
+                    h: 1
+                }[event.key] || 0) * 2;
+
+                translateY += ({
+                    t: -1,
+                    g: 1
+                }[event.key] || 0) * 2;
+
+                scale += ({
+                    r: -1,
+                    y: 1
+                }[event.key] || 0) * 1;
+
+                $video.data({
+                    scale: scale,
+                    translateX: translateX,
+                    translateY: translateY
+                }).css({
+                    transform: 'scale(' + (scale / 100) + ') translate(' + translateX + 'px, ' + translateY + 'px)'
+                })
+            } else
+            if (/Arrow(Left|Right)/.test(event.key)) {
+                video.currentTime += event.key === 'ArrowLeft' ? -1 : 1;
+            } else
+            if (/Arrow(Down|Up)/.test(event.key)) {
+                var volume = (video.volume + (event.key === 'ArrowDown' ? -1 : 1) / 100);
+                video.volume = volume <= 1 ? volume < 0 ? 0 : volume : 1;
+            } else if (event.keyCode == 32){
+                video.paused ? video.play() : video.pause()
+            } else {
+                console.log(event);
+            }
+        });
+        $(document).on("mousewheel DOMMouseScroll", function(event){
+            var scale = $video.data('scale') || 100;
+            var translateX = $video.data('translateX') || 0;
+            var translateY = $video.data('translateY') || 0;
+            scale += (event.originalEvent.wheelDelta > 0 ? 1 : -1) * 2
+            $video.data({
+                scale: scale,
+                translateX: translateX,
+                translateY: translateY
+            }).css({
+                transform: 'scale(' + (scale / 100) + ') translate(' + translateX + 'px, ' + translateY + 'px)'
+            })
+        })
+    </script>
+    </div>
+</body>
+</html>
