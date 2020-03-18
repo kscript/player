@@ -42,7 +42,7 @@
 <body>
     <div class="main">
     <input type="file" name="" id="">
-    <video autoplay="" name="media">
+    <video autoplay="" loop name="media">
     </video>
     <script src="./jquery-1.7.2.min.js"></script>
     <script>
@@ -50,7 +50,8 @@
         var video = $video[0];
         var app = {
             mode: 'play',
-            mouse: {}
+            mouse: {},
+            play: {}
         }
         $("input").on("change", function(){
             $video.html('<source src="' + URL.createObjectURL(this.files[0]) + '"></source>');
@@ -84,7 +85,28 @@
                 })
             }
         });
+        $video.on("timeupdate", function(){
+            var a = app.play.a
+            var b = app.play.b
+            var c
+            if (a !== void 0 && b !== void 0) {
+                if(a > b) {
+                    c = a;
+                    a = b;
+                    b = c;
+                }
+                if (video.currentTime > b) {
+                    video.currentTime = a;
+                }
+            }
+        })
         $(document).on("keydown", function(event){
+            if(/^[ab]$/.test(event.key)){
+                app.play[event.key] = video.currentTime
+            } else
+            if (event.key === 'c') {
+                app.play.a = app.play.b = void 0
+            } else
             if (/^[rtyfgh]$/.test(event.key)) {
                 var scale = $video.data('scale') || 100;
                 var translateX = $video.data('translateX') || 0;
