@@ -57,7 +57,7 @@
             play: {}
         }
         $("input").on("change", function(){
-            $video.html('<source src="' + URL.createObjectURL(this.files[0]) + '"></source>');
+            playVideo(URL.createObjectURL(this.files[0]))
             $(this).hide();
         });
         $("video").on("mousedown", function(event){
@@ -162,6 +162,10 @@
                 transform: 'scale(' + (scale / 100) + ') translate(' + translateX + 'px, ' + translateY + 'px)'
             })
         })
+        function playVideo(url){
+            $video.html('<source src="' + url + '"></source>');
+            $("input").hide();
+        }
     </script>
     </div>
 </body>
